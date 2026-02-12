@@ -20,7 +20,7 @@ describe('Détecteur de carte haute', () => {
     it('devrait retourner l’As comme carte haute', () => {
         const cartes = [
             creerCarte('J', '♠'),
-            creerCarte('Q', '♥'),
+            creerCarte(9, '♥'),
             creerCarte('K', '♦'),
             creerCarte('A', '♣'),
             creerCarte(10, '♠')
@@ -114,5 +114,31 @@ describe('Détecteur de main', () => {
         expect(resultat.cartes.length).toBe(5);
     });
 
+    it('devrait détecter un full', () => {
+        const cartes = [
+            creerCarte(4,'♠'),
+            creerCarte(4,'♥'),
+            creerCarte(4,'♦'),
+            creerCarte(9,'♣'),
+            creerCarte(9,'♠')
+        ];
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.Full);
+        expect(resultat.cartes.length).toBe(5);
+    });
+
+    it('devrait détecter une quinte flush', () => {
+        const cartes = [
+            creerCarte(6,'♣'),
+            creerCarte(7,'♣'),
+            creerCarte(8,'♣'),
+            creerCarte(9,'♣'),
+            creerCarte(10,'♣'),
+            creerCarte(2,'♦')
+        ];
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.QuinteFlush);
+        expect(resultat.cartes.length).toBe(5);
+    });
 
 });

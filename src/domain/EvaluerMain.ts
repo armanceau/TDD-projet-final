@@ -31,6 +31,25 @@ export function valeurRang(rang: Rang): number {
 export function detecterMain(cartes: Carte[]): ResultatMain {
     if (cartes.length === 0) throw new Error("Aucune carte fournie");
 
+    const getSuiteCartes = (source: Carte[]): Carte[] | null => {
+        const valeursUniq = Array.from(new Set(source.map(c => valeurRang(c.rang)))).sort((a, b) => b - a);
+        const valeurs = [...valeursUniq];
+        if (valeurs.includes(14)) valeurs.push(1);
+        for (let i = 0; i <= valeurs.length - 5; i++) {
+            const window = valeurs.slice(i, i + 5);
+            if (window[0] - window[4] === 4) {
+                const straightCartes: Carte[] = [];
+                for (const v of window) {
+                    const target = v === 1 ? 14 : v;
+                    const c = source.find(card => valeurRang(card.rang) === target);
+                    if (c) straightCartes.push(c);
+                }
+                if (straightCartes.length === 5) return straightCartes;
+            }
+        }
+        return null;
+    };
+
     const compte: Record<string, Carte[]> = {};
     for (const carte of cartes) {
         const cle = carte.rang.toString();
@@ -38,63 +57,10 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
         compte[cle].push(carte);
     }
 
-    const groupes = Object.values(compte);
-
-    const paires = groupes.filter(g => g.length === 2);
-    if (paires.length >= 2 && paires[0] && paires[1]) {
-        const toutesPaires = [...paires[0], ...paires[1]];
-        const kickers = cartes
-            .filter(c => !toutesPaires.includes(c))
-            .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
-            .slice(0,1);
-        return { categorie: CategorieMain.DeuxPaires, cartes: [...toutesPaires, ...kickers] };
-    }
-
-    if (paires.length === 1 && paires[0]) {
-        const paire = paires[0];
-        const kickers = cartes
-            .filter(c => !paire.includes(c))
-            .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
-            .slice(0,3);
-        return { categorie: CategorieMain.Paire, cartes: [...paire, ...kickers] };
-    }
-
-    const brelans = groupes.filter(g => g.length === 3 && g[0]);
-    if (brelans.length >= 1 && brelans[0]) {
-        const triplet = brelans[0];
-        const kickers = cartes
-            .filter(c => !triplet.includes(c))
-            .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
-            .slice(0,2);
-        return { categorie: CategorieMain.Brelan, cartes: [...triplet, ...kickers] };
-    }
-
-    const carres = groupes.filter(g => g.length === 4);
-    if (carres.length >= 1) {
-        const carre = carres[0];
-        const kicker = cartes
-            .filter(c => !carre.includes(c))
-            .sort((a,b) => valeurRang(b.rang) - valeurRang(a.rang))
-            .slice(0,1);
-        return { categorie: CategorieMain.Carre, cartes: [...carre, ...kicker] };
-    }
-
-    const valeursSansAs = Array.from(new Set(cartes.map(c => valeurRang(c.rang)))).sort((a,b) => b - a);
-    if (!(valeursSansAs.includes(10) && valeursSansAs.includes(11) && valeursSansAs.includes(12) && valeursSansAs.includes(13) && valeursSansAs.includes(14))) {
-        const valeurs = [...valeursSansAs];
-        if (valeurs.includes(14)) valeurs.push(1);
-        for (let i = 0; i <= valeurs.length - 5; i++) {
-            const window = valeurs.slice(i, i + 5);
-            if (window[0] - window[4] === 4) {
-                const straightCartes: Carte[] = [];
-                for (let v of window) {
-                    const c = cartes.find(c => valeurRang(c.rang) === (v === 1 ? 14 : v));
-                    if (c) straightCartes.push(c);
-                }
-                return { categorie: CategorieMain.Suite, cartes: straightCartes };
-            }
-        }
-    }
+    const groupesTries = Object.values(compte).sort((a, b) => valeurRang(b[0]!.rang) - valeurRang(a[0]!.rang));
+    const carres = groupesTries.filter(g => g.length === 4);
+    const brelans = groupesTries.filter(g => g.length === 3);
+    const paires = groupesTries.filter(g => g.length === 2);
 
     const couleurs: Record<string, Carte[]> = {};
     for (const c of cartes) {
@@ -103,15 +69,68 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
     }
     const flushs = Object.values(couleurs).filter(g => g.length >= 5);
     if (flushs.length >= 1 && flushs[0]) {
+        const quinteFlush = getSuiteCartes(flushs[0]);
+        if (quinteFlush) {
+            return { categorie: CategorieMain.QuinteFlush, cartes: quinteFlush };
+        }
+    }
+
+    if (carres.length >= 1) {
+        const carre = carres[0]!;
+        const kicker = cartes
+            .filter(c => !carre.includes(c))
+            .sort((a, b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0, 1);
+        return { categorie: CategorieMain.Carre, cartes: [...carre, ...kicker] };
+    }
+
+    if (brelans.length >= 1) {
+        const triplet = brelans[0]!;
+        const autreBrelan = brelans[1];
+        const paire = paires[0] ?? (autreBrelan ? autreBrelan.slice(0, 2) : undefined);
+        if (paire) {
+            return { categorie: CategorieMain.Full, cartes: [...triplet, ...paire] };
+        }
+    }
+
+    if (flushs.length >= 1 && flushs[0]) {
         const flushCartes = flushs[0]
-            .sort((a,b) => valeurRang(b.rang) - valeurRang(a.rang))
-            .slice(0,5);
+            .sort((a, b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0, 5);
         return { categorie: CategorieMain.Couleur, cartes: flushCartes };
     }
 
+    const suite = getSuiteCartes(cartes);
+    if (suite) {
+        return { categorie: CategorieMain.Suite, cartes: suite };
+    }
 
+    if (brelans.length >= 1) {
+        const triplet = brelans[0]!;
+        const kickers = cartes
+            .filter(c => !triplet.includes(c))
+            .sort((a, b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0, 2);
+        return { categorie: CategorieMain.Brelan, cartes: [...triplet, ...kickers] };
+    }
 
+    if (paires.length >= 2 && paires[0] && paires[1]) {
+        const toutesPaires = [...paires[0], ...paires[1]];
+        const kickers = cartes
+            .filter(c => !toutesPaires.includes(c))
+            .sort((a, b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0, 1);
+        return { categorie: CategorieMain.DeuxPaires, cartes: [...toutesPaires, ...kickers] };
+    }
 
+    if (paires.length === 1 && paires[0]) {
+        const paire = paires[0];
+        const kickers = cartes
+            .filter(c => !paire.includes(c))
+            .sort((a, b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0, 3);
+        return { categorie: CategorieMain.Paire, cartes: [...paire, ...kickers] };
+    }
 
     const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
     return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };
