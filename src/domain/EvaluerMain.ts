@@ -17,6 +17,27 @@ export interface ResultatMain {
     cartes: Carte[];
 }
 
+function valeurSuite(cartes: Carte[]): number {
+    const valeurs = cartes.map(c => valeurRang(c.rang));
+    const uniques = new Set(valeurs);
+    if (uniques.has(14) && uniques.has(5) && uniques.has(4) && uniques.has(3) && uniques.has(2)) {
+        return 5;
+    }
+    return Math.max(...valeurs);
+}
+
+export function comparerResultats(a: ResultatMain, b: ResultatMain): number {
+    if (a.categorie !== b.categorie) return a.categorie - b.categorie;
+
+    switch (a.categorie) {
+        case CategorieMain.Suite:
+        case CategorieMain.QuinteFlush:
+            return valeurSuite(a.cartes) - valeurSuite(b.cartes);
+        default:
+            return 0;
+    }
+}
+
 export function valeurRang(rang: Rang): number {
     if (typeof rang === 'number') return rang;
     switch (rang) {
@@ -160,7 +181,7 @@ export function evaluerMeilleureMain(cartes: Carte[]): ResultatMain {
 
     for (let i = 1; i < combinaisons.length; i++) {
         const courant = detecterMain(combinaisons[i]!);
-        if (courant.categorie > meilleure.categorie) {
+        if (comparerResultats(courant, meilleure) > 0) {
             meilleure = courant;
         }
     }
