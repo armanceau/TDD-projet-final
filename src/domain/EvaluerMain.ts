@@ -69,6 +69,17 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
         return { categorie: CategorieMain.Brelan, cartes: [...triplet, ...kickers] };
     }
 
+    // juste après le bloc Brelan et avant Suite/Couleur/Full
+    const carres = groupes.filter(g => g.length === 4);
+    if (carres.length >= 1) {
+        const carre = carres[0];
+        const kicker = cartes
+            .filter(c => !carre.includes(c))
+            .sort((a,b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0,1); // prendre le kicker le plus haut
+        return { categorie: CategorieMain.Carre, cartes: [...carre, ...kicker] };
+    }
+
     const valeursSansAs = Array.from(new Set(cartes.map(c => valeurRang(c.rang)))).sort((a,b) => b - a);
     if (!(valeursSansAs.includes(10) && valeursSansAs.includes(11) && valeursSansAs.includes(12) && valeursSansAs.includes(13) && valeursSansAs.includes(14))) {
         const valeurs = [...valeursSansAs];
@@ -98,6 +109,10 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
             .slice(0,5);
         return { categorie: CategorieMain.Couleur, cartes: flushCartes };
     }
+
+
+
+
 
     const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
     return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };

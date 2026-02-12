@@ -94,4 +94,25 @@ describe('Détecteur de main', () => {
         expect(resultat.categorie).toBe(CategorieMain.Couleur);
         expect(resultat.cartes.length).toBe(5);
     });
+
+    it('devrait détecter un carré', () => {
+        const cartes = [
+            creerCarte(9,'♠'),
+            creerCarte(9,'♥'),
+            creerCarte(9,'♦'),
+            creerCarte(9,'♣'),
+            creerCarte(2,'♠')
+        ];
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.Carre);
+
+        const rangs = resultat.cartes.map(c => c.rang);
+        const carreRang = 9;
+        const compteRang = rangs.filter(r => r === carreRang).length;
+        expect(compteRang).toBe(4);
+
+        expect(resultat.cartes.length).toBe(5);
+    });
+
+
 });
