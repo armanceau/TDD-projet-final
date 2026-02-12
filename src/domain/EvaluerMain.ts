@@ -69,6 +69,23 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
         return { categorie: CategorieMain.Brelan, cartes: [...triplet, ...kickers] };
     }
 
+    const valeursSansAs = Array.from(new Set(cartes.map(c => valeurRang(c.rang)))).sort((a,b) => b - a);
+    if (!(valeursSansAs.includes(10) && valeursSansAs.includes(11) && valeursSansAs.includes(12) && valeursSansAs.includes(13) && valeursSansAs.includes(14))) {
+        const valeurs = [...valeursSansAs];
+        if (valeurs.includes(14)) valeurs.push(1);
+        for (let i = 0; i <= valeurs.length - 5; i++) {
+            const window = valeurs.slice(i, i + 5);
+            if (window[0] - window[4] === 4) {
+                const straightCartes: Carte[] = [];
+                for (let v of window) {
+                    const c = cartes.find(c => valeurRang(c.rang) === (v === 1 ? 14 : v));
+                    if (c) straightCartes.push(c);
+                }
+                return { categorie: CategorieMain.Suite, cartes: straightCartes };
+            }
+        }
+    }
+
     const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
     return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };
 }

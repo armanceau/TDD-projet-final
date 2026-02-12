@@ -68,4 +68,16 @@ describe('Détecteur de main', () => {
         const resultat = detecterMain(cartes);
         expect(resultat.categorie).toBe(CategorieMain.Brelan);
     });
+
+    it('devrait détecter une suite', () => {
+        const cartes = [
+            creerCarte(2,'♠'),
+            creerCarte(3,'♥'),
+            creerCarte(4,'♦'),
+            creerCarte(5,'♣'),
+            creerCarte(6,'♠')
+        ];
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.Suite);
+    });
 });
