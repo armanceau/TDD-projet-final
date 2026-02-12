@@ -1,4 +1,4 @@
-import { Carte, Rang } from '../Entities/Carte.js';
+import { Carte, Rang } from '../entities/Carte.js';
 
 export interface ResultatCarteHaute {
     carteHaute: Carte;

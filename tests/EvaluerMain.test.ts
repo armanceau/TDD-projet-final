@@ -31,3 +31,5 @@ describe('Détecteur de carte haute', () => {
         expect(() => detecterCarteHaute([])).toThrow("Aucune carte fournie");
     });
 });
+
+
