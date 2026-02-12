@@ -69,14 +69,13 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
         return { categorie: CategorieMain.Brelan, cartes: [...triplet, ...kickers] };
     }
 
-    // juste après le bloc Brelan et avant Suite/Couleur/Full
     const carres = groupes.filter(g => g.length === 4);
     if (carres.length >= 1) {
         const carre = carres[0];
         const kicker = cartes
             .filter(c => !carre.includes(c))
             .sort((a,b) => valeurRang(b.rang) - valeurRang(a.rang))
-            .slice(0,1); // prendre le kicker le plus haut
+            .slice(0,1);
         return { categorie: CategorieMain.Carre, cartes: [...carre, ...kicker] };
     }
 
