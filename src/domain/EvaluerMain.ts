@@ -1,34 +1,64 @@
 import { Carte, Rang } from '../entities/Carte.js';
 
-export interface ResultatCarteHaute {
-    carteHaute: Carte;
+export enum CategorieMain {
+    CarteHaute,
+    Paire,
+    DeuxPaires,
+    Brelan,
+    Suite,
+    Couleur,
+    Full,
+    Carre,
+    QuinteFlush
 }
 
-export function detecterCarteHaute(cartes: Carte[]): ResultatCarteHaute {
+export interface ResultatMain {
+    categorie: CategorieMain;
+    cartes: Carte[]; // les 5 cartes choisies
+}
+
+export function valeurRang(rang: Rang): number {
+    if (typeof rang === 'number') return rang;
+    switch (rang) {
+        case 'J': return 11;
+        case 'Q': return 12;
+        case 'K': return 13;
+        case 'A': return 14;
+        default: return 0;
+    }
+}
+
+export function detecterMain(cartes: Carte[]): ResultatMain {
     if (cartes.length === 0) throw new Error("Aucune carte fournie");
 
-    const valeurRang = (rang: Rang) => {
-        if (typeof rang === 'number') return rang;
-        switch (rang) {
-            case 'J': return 11;
-            case 'Q': return 12;
-            case 'K': return 13;
-            case 'A': return 14;
-            default: return 0;
-        }
-    };
-
-    let carteMax = cartes[0];
-    if(carteMax != undefined) {
-        for (const carte of cartes) {
-
-            if (valeurRang(carte.rang) > valeurRang(carteMax.rang)) {
-                carteMax = carte;
-            }
-        }
-        return { carteHaute: carteMax }
+    const compte: Record<string, Carte[]> = {};
+    for (const carte of cartes) {
+        const cle = carte.rang.toString();
+        if (!compte[cle]) compte[cle] = [];
+        compte[cle].push(carte);
     }
-    else{
-        throw ("La carte n'est pas définie")
+
+    const groupes = Object.values(compte);
+
+    const paires = groupes.filter(g => g.length === 2);
+    if (paires.length >= 2 && paires[0] && paires[1]) {
+        const toutesPaires = [...paires[0], ...paires[1]];
+        const kickers = cartes
+            .filter(c => !toutesPaires.includes(c))
+            .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
+            .slice(0,1);
+        return { categorie: CategorieMain.DeuxPaires, cartes: [...toutesPaires, ...kickers] };
     }
+
+    if (paires.length === 1 && paires[0]) {
+        const paire = paires[0];
+        const kickers = cartes
+            .filter(c => !paire.includes(c))
+            .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
+            .slice(0,3);
+        return { categorie: CategorieMain.Paire, cartes: [...paire, ...kickers] };
+    }
+
+    const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
+    return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };
 }

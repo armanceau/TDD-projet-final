@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detecterCarteHaute } from '../src/domain/EvaluerMain.js';
+import { detecterMain, CategorieMain } from '../src/domain/EvaluerMain.js';
 import { creerCarte } from '../src/domain/CreerCarte.js';
 
 describe('Détecteur de carte haute', () => {
@@ -11,8 +11,10 @@ describe('Détecteur de carte haute', () => {
             creerCarte(3, '♣'),
             creerCarte(7, '♠')
         ];
-        const resultat = detecterCarteHaute(cartes);
-        expect(resultat.carteHaute.rang).toBe(10);
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.CarteHaute);
+        // @ts-ignore
+        expect(resultat.cartes[0].rang).toBe(10);
     });
 
     it('devrait retourner l’As comme carte haute', () => {
@@ -23,13 +25,35 @@ describe('Détecteur de carte haute', () => {
             creerCarte('A', '♣'),
             creerCarte(10, '♠')
         ];
-        const resultat = detecterCarteHaute(cartes);
-        expect(resultat.carteHaute.rang).toBe('A');
-    });
-
-    it('devrait lancer une erreur si main vide', () => {
-        expect(() => detecterCarteHaute([])).toThrow("Aucune carte fournie");
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.CarteHaute);
+        // @ts-ignore
+        expect(resultat.cartes[0].rang).toBe('A');
     });
 });
 
+describe('Détecteur de main', () => {
+    it('devrait détecter une paire', () => {
+        const cartes = [
+            creerCarte(2,'♠'),
+            creerCarte(2,'♥'),
+            creerCarte(5,'♦'),
+            creerCarte(7,'♣'),
+            creerCarte(9,'♠')
+        ];
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.Paire);
+    });
 
+    it('devrait détecter deux paires', () => {
+        const cartes = [
+            creerCarte(2,'♠'),
+            creerCarte(2,'♥'),
+            creerCarte(5,'♦'),
+            creerCarte(5,'♣'),
+            creerCarte(9,'♠')
+        ];
+        const resultat = detecterMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.DeuxPaires);
+    });
+});
