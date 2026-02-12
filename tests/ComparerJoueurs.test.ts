@@ -153,4 +153,96 @@ describe('Comparateur de joueurs', () => {
             CategorieMain.DeuxPaires,
         );
     });
+
+    it("devrait departager deux couleurs", () => {
+        const board = [
+            creerCarte("A", "♥"),
+            creerCarte(10, "♥"),
+            creerCarte(8, "♥"),
+            creerCarte(4, "♥"),
+            creerCarte(2, "♣"),
+        ];
+        const joueurs = [
+            { id: "J1", cartes: [creerCarte("K", "♥"), creerCarte(3, "♦")] },
+            { id: "J2", cartes: [creerCarte("Q", "♥"), creerCarte(3, "♠")] },
+        ];
+        const resultat = comparerJoueurs(board, joueurs);
+        expect(resultat.gagnants.length).toBe(1);
+        expect(resultat.gagnants[0]?.joueur.id).toBe("J1");
+        expect(resultat.gagnants[0]?.resultat.categorie).toBe(CategorieMain.Couleur);
+    });
+
+    it("devrait departager deux fulls", () => {
+        const board = [
+            creerCarte(3, "♣"),
+            creerCarte(3, "♦"),
+            creerCarte("K", "♥"),
+            creerCarte("K", "♠"),
+            creerCarte(2, "♦"),
+        ];
+        const joueurs = [
+            { id: "J1", cartes: [creerCarte(3, "♥"), creerCarte("A", "♣")] },
+            { id: "J2", cartes: [creerCarte("K", "♣"), creerCarte("A", "♦")] },
+        ];
+        const resultat = comparerJoueurs(board, joueurs);
+        expect(resultat.gagnants.length).toBe(1);
+        expect(resultat.gagnants[0]?.joueur.id).toBe("J2");
+        expect(resultat.gagnants[0]?.resultat.categorie).toBe(CategorieMain.Full);
+    });
+
+    it("devrait departager deux carres par le kicker", () => {
+        const board = [
+            creerCarte(7, "♣"),
+            creerCarte(7, "♦"),
+            creerCarte(7, "♥"),
+            creerCarte(7, "♠"),
+            creerCarte(2, "♦"),
+        ];
+        const joueurs = [
+            { id: "J1", cartes: [creerCarte("A", "♣"), creerCarte("K", "♣")] },
+            { id: "J2", cartes: [creerCarte("Q", "♣"), creerCarte("J", "♣")] },
+        ];
+        const resultat = comparerJoueurs(board, joueurs);
+        expect(resultat.gagnants.length).toBe(1);
+        expect(resultat.gagnants[0]?.joueur.id).toBe("J1");
+        expect(resultat.gagnants[0]?.resultat.categorie).toBe(CategorieMain.Carre);
+    });
+
+    it("devrait departager deux brelans par les kickers", () => {
+        const board = [
+            creerCarte(9, "♣"),
+            creerCarte(9, "♦"),
+            creerCarte(2, "♠"),
+            creerCarte(5, "♦"),
+            creerCarte("K", "♣"),
+        ];
+        const joueurs = [
+            { id: "J1", cartes: [creerCarte(9, "♥"), creerCarte("A", "♠")] },
+            { id: "J2", cartes: [creerCarte(9, "♠"), creerCarte("Q", "♣")] },
+        ];
+        const resultat = comparerJoueurs(board, joueurs);
+        expect(resultat.gagnants.length).toBe(1);
+        expect(resultat.gagnants[0]?.joueur.id).toBe("J1");
+        expect(resultat.gagnants[0]?.resultat.categorie).toBe(CategorieMain.Brelan);
+    });
+
+    it("devrait departager deux cartes hautes", () => {
+        const board = [
+            creerCarte("A", "♣"),
+            creerCarte("K", "♦"),
+            creerCarte(9, "♠"),
+            creerCarte(5, "♥"),
+            creerCarte(2, "♦"),
+        ];
+        const joueurs = [
+            { id: "J1", cartes: [creerCarte("Q", "♣"), creerCarte("J", "♣")] },
+            { id: "J2", cartes: [creerCarte("Q", "♠"), creerCarte(10, "♠")] },
+        ];
+        const resultat = comparerJoueurs(board, joueurs);
+        expect(resultat.gagnants.length).toBe(1);
+        expect(resultat.gagnants[0]?.joueur.id).toBe("J1");
+        expect(resultat.gagnants[0]?.resultat.categorie).toBe(
+            CategorieMain.CarteHaute,
+        );
+    });
 });
