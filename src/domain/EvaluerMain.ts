@@ -86,6 +86,19 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
         }
     }
 
+    const couleurs: Record<string, Carte[]> = {};
+    for (const c of cartes) {
+        if (!couleurs[c.couleur]) couleurs[c.couleur] = [];
+        couleurs[c.couleur].push(c);
+    }
+    const flushs = Object.values(couleurs).filter(g => g.length >= 5);
+    if (flushs.length >= 1 && flushs[0]) {
+        const flushCartes = flushs[0]
+            .sort((a,b) => valeurRang(b.rang) - valeurRang(a.rang))
+            .slice(0,5);
+        return { categorie: CategorieMain.Couleur, cartes: flushCartes };
+    }
+
     const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
     return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };
 }
