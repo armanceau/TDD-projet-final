@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { comparerJoueurs } from '../src/domain/ComparerJoueurs.js';
 import { creerCarte } from '../src/domain/CreerCarte.js';
-import { CategorieMain } from '../src/domain/EvaluerMain.js';
+import {CategorieMain} from "../src/constant/CategorieMainEnum.js";
 
 describe('Comparateur de joueurs', () => {
     it('devrait retourner le joueur avec la meilleure categorie', () => {

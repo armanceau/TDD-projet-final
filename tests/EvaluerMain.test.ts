@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { detecterMain, evaluerMeilleureMain, CategorieMain } from '../src/domain/EvaluerMain.js';
+import { detecterMain, evaluerMeilleureMain } from '../src/domain/EvaluerMain.js';
 import { creerCarte } from '../src/domain/CreerCarte.js';
+import {CategorieMain} from "../src/constant/CategorieMainEnum.js";
 
 describe('Détecteur de carte haute', () => {
     it('devrait retourner la carte la plus haute parmi des nombres', () => {

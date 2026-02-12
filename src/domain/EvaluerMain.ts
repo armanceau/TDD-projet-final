@@ -1,16 +1,5 @@
 import { Carte, Rang } from '../entities/Carte.js';
-
-export enum CategorieMain {
-    CarteHaute,
-    Paire,
-    DeuxPaires,
-    Brelan,
-    Suite,
-    Couleur,
-    Full,
-    Carre,
-    QuinteFlush
-}
+import {CategorieMain} from "../constant/CategorieMainEnum.js";
 
 export interface ResultatMain {
     categorie: CategorieMain;
