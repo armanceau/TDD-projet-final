@@ -26,6 +26,15 @@ function valeurSuite(cartes: Carte[]): number {
     return Math.max(...valeurs);
 }
 
+function comparerValeursCartes(a: Carte[], b: Carte[]): number {
+    const longueur = Math.min(a.length, b.length);
+    for (let i = 0; i < longueur; i++) {
+        const diff = valeurRang(a[i]!.rang) - valeurRang(b[i]!.rang);
+        if (diff !== 0) return diff;
+    }
+    return a.length - b.length;
+}
+
 export function comparerResultats(a: ResultatMain, b: ResultatMain): number {
     if (a.categorie !== b.categorie) return a.categorie - b.categorie;
 
@@ -33,6 +42,14 @@ export function comparerResultats(a: ResultatMain, b: ResultatMain): number {
         case CategorieMain.Suite:
         case CategorieMain.QuinteFlush:
             return valeurSuite(a.cartes) - valeurSuite(b.cartes);
+        case CategorieMain.Carre:
+        case CategorieMain.Full:
+        case CategorieMain.Couleur:
+        case CategorieMain.Brelan:
+        case CategorieMain.DeuxPaires:
+        case CategorieMain.Paire:
+        case CategorieMain.CarteHaute:
+            return comparerValeursCartes(a.cartes, b.cartes);
         default:
             return 0;
     }
@@ -153,8 +170,8 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
         return { categorie: CategorieMain.Paire, cartes: [...paire, ...kickers] };
     }
 
-    const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
-    return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };
+    const cartesTriees = [...cartes].sort((a, b) => valeurRang(b.rang) - valeurRang(a.rang));
+    return { categorie: CategorieMain.CarteHaute, cartes: cartesTriees.slice(0, 5) };
 }
 
 function combinaisonsDeCinq(cartes: Carte[]): Carte[][] {
