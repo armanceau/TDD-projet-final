@@ -1,10 +1,6 @@
 import { Carte, Rang } from '../entities/Carte.js';
 import {CategorieMain} from "../constant/CategorieMainEnum.js";
-
-export interface ResultatMain {
-    categorie: CategorieMain;
-    cartes: Carte[];
-}
+import {ResultatMain} from "../entities/Main.js";
 
 export function valeurRang(rang: Rang): number {
     if (typeof rang === 'number') return rang;
