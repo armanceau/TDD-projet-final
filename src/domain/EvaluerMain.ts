@@ -14,7 +14,7 @@ export enum CategorieMain {
 
 export interface ResultatMain {
     categorie: CategorieMain;
-    cartes: Carte[]; // les 5 cartes choisies
+    cartes: Carte[];
 }
 
 export function valeurRang(rang: Rang): number {
@@ -57,6 +57,16 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
             .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
             .slice(0,3);
         return { categorie: CategorieMain.Paire, cartes: [...paire, ...kickers] };
+    }
+
+    const brelans = groupes.filter(g => g.length === 3 && g[0]);
+    if (brelans.length >= 1 && brelans[0]) {
+        const triplet = brelans[0];
+        const kickers = cartes
+            .filter(c => !triplet.includes(c))
+            .sort((a,b)=>valeurRang(b.rang)-valeurRang(a.rang))
+            .slice(0,2);
+        return { categorie: CategorieMain.Brelan, cartes: [...triplet, ...kickers] };
     }
 
     const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
