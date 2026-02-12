@@ -1,0 +1,30 @@
+{
+  "name": "tdd-projet-final",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vitest",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/armanceau/TDD-projet-final.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/armanceau/TDD-projet-final/issues"
+  },
+  "homepage": "https://github.com/armanceau/TDD-projet-final#readme",
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "eslint": "^10.0.0",
+    "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
