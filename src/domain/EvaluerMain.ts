@@ -135,3 +135,35 @@ export function detecterMain(cartes: Carte[]): ResultatMain {
     const carteMax = cartes.reduce((max, c) => (valeurRang(c.rang) > valeurRang(max.rang) ? c : max), cartes[0]!);
     return { categorie: CategorieMain.CarteHaute, cartes: [carteMax] };
 }
+
+function combinaisonsDeCinq(cartes: Carte[]): Carte[][] {
+    const resultats: Carte[][] = [];
+    for (let i = 0; i < cartes.length - 4; i++) {
+        for (let j = i + 1; j < cartes.length - 3; j++) {
+            for (let k = j + 1; k < cartes.length - 2; k++) {
+                for (let l = k + 1; l < cartes.length - 1; l++) {
+                    for (let m = l + 1; m < cartes.length; m++) {
+                        resultats.push([cartes[i]!, cartes[j]!, cartes[k]!, cartes[l]!, cartes[m]!]);
+                    }
+                }
+            }
+        }
+    }
+    return resultats;
+}
+
+export function evaluerMeilleureMain(cartes: Carte[]): ResultatMain {
+    if (cartes.length < 5) throw new Error("Au moins 5 cartes sont requises");
+
+    const combinaisons = combinaisonsDeCinq(cartes);
+    let meilleure = detecterMain(combinaisons[0]!);
+
+    for (let i = 1; i < combinaisons.length; i++) {
+        const courant = detecterMain(combinaisons[i]!);
+        if (courant.categorie > meilleure.categorie) {
+            meilleure = courant;
+        }
+    }
+
+    return meilleure;
+}

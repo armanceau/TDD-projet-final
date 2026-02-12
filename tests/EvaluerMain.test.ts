@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detecterMain, CategorieMain } from '../src/domain/EvaluerMain.js';
+import { detecterMain, evaluerMeilleureMain, CategorieMain } from '../src/domain/EvaluerMain.js';
 import { creerCarte } from '../src/domain/CreerCarte.js';
 
 describe('Détecteur de carte haute', () => {
@@ -141,4 +141,45 @@ describe('Détecteur de main', () => {
         expect(resultat.cartes.length).toBe(5);
     });
 
+});
+
+describe('Meilleure main sur 7 cartes', () => {
+    it('devrait choisir la couleur comme meilleure main', () => {
+        const cartes = [
+            creerCarte('A','♥'),
+            creerCarte('J','♥'),
+            creerCarte(9,'♥'),
+            creerCarte(4,'♥'),
+            creerCarte(2,'♣'),
+            creerCarte(6,'♥'),
+            creerCarte('K','♦')
+        ];
+        const resultat = evaluerMeilleureMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.Couleur);
+        expect(resultat.cartes.length).toBe(5);
+        expect(resultat.cartes.every(c => c.couleur === '♥')).toBe(true);
+    });
+
+    it('devrait choisir un full comme meilleure main', () => {
+        const cartes = [
+            creerCarte(4,'♠'),
+            creerCarte(4,'♥'),
+            creerCarte(4,'♦'),
+            creerCarte(9,'♣'),
+            creerCarte(9,'♠'),
+            creerCarte(2,'♠'),
+            creerCarte('K','♦')
+        ];
+        const resultat = evaluerMeilleureMain(cartes);
+        expect(resultat.categorie).toBe(CategorieMain.Full);
+        expect(resultat.cartes.length).toBe(5);
+    });
+
+    it('devrait retourner une erreur', () => {
+        const cartes = [
+            creerCarte('A','♥'),
+            creerCarte('J','♥'),
+        ];
+        expect(() => evaluerMeilleureMain(cartes)).toThrow("Au moins 5 cartes sont requises");
+    });
 });
